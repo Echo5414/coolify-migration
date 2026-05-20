@@ -32,6 +32,17 @@ exist, scripts will load `.env.develop`; you can also force a file with
 Use a temporary SSH key for both servers. Do not put passwords, API tokens, or
 Coolify secrets in this repository.
 
+If the source server currently only accepts password login, put the password in
+local `.env.develop` and run this one-time bootstrap from your trusted machine:
+
+```bash
+python scripts/bootstrap-source-key.py --execute
+```
+
+That appends the public key matching `SOURCE_SSH_KEY` to the source user's
+`~/.ssh/authorized_keys`. After that, remove `SOURCE_PASSWORD` from local env
+files and use key-based scripts.
+
 Minimum `.env` values:
 
 ```dotenv
