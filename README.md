@@ -81,6 +81,13 @@ source while the byte-level archive is created, then starts Docker again.
 bash scripts/backup-source.sh --execute
 ```
 
+For a final cutover where Contabo must stay frozen after the backup snapshot,
+set:
+
+```dotenv
+KEEP_SOURCE_DOCKER_STOPPED=true
+```
+
 For important databases, keep `RUN_DB_DUMPS=true`. The script attempts
 best-effort logical dumps before stopping Docker, then archives the stopped
 Docker volumes for a 1:1 copy.

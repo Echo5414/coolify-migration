@@ -24,6 +24,7 @@
 ## Maintenance window
 
 - Confirm users know writes may pause.
+- Set `KEEP_SOURCE_DOCKER_STOPPED=true` when this is the final cutover snapshot.
 - Run `scripts/backup-source.sh --execute`.
 - Run `scripts/transfer-to-destination.sh --execute`.
 - Set `ALLOW_DESTINATION_DOCKER_STOP=true`.

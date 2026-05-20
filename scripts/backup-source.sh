@@ -12,11 +12,12 @@ require_remote_config SOURCE
 
 RUN_ID="${RUN_ID:-$(timestamp)}"
 remote_cmd=$(
-  printf 'COOLIFY_DATA_DIR=%q MIGRATION_WORKDIR=%q RUN_ID=%q STOP_DOCKER_FOR_BACKUP=%q RUN_DB_DUMPS=%q EXTRA_BIND_PATHS=%q MERGE_ROOT_AUTHORIZED_KEYS=%q bash -s' \
+  printf 'COOLIFY_DATA_DIR=%q MIGRATION_WORKDIR=%q RUN_ID=%q STOP_DOCKER_FOR_BACKUP=%q KEEP_SOURCE_DOCKER_STOPPED=%q RUN_DB_DUMPS=%q EXTRA_BIND_PATHS=%q MERGE_ROOT_AUTHORIZED_KEYS=%q bash -s' \
     "$COOLIFY_DATA_DIR" \
     "$MIGRATION_WORKDIR" \
     "$RUN_ID" \
     "$STOP_DOCKER_FOR_BACKUP" \
+    "$KEEP_SOURCE_DOCKER_STOPPED" \
     "$RUN_DB_DUMPS" \
     "$EXTRA_BIND_PATHS" \
     "$MERGE_ROOT_AUTHORIZED_KEYS"
@@ -154,7 +155,11 @@ start_docker() {
     systemctl start docker 2>/dev/null || service docker start 2>/dev/null || true
   fi
 }
-trap start_docker EXIT
+if bool_true "${KEEP_SOURCE_DOCKER_STOPPED:-false}"; then
+  log "KEEP_SOURCE_DOCKER_STOPPED=true; source Docker will remain stopped after backup"
+else
+  trap start_docker EXIT
+fi
 
 if bool_true "$STOP_DOCKER_FOR_BACKUP"; then
   log "Stopping Docker for a consistent volume snapshot"

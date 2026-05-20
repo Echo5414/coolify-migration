@@ -70,6 +70,7 @@ records back to `167.86.89.139`.
 
 - Confirm the maintenance window.
 - Confirm Docker may be stopped on Contabo for the backup snapshot.
+- Confirm whether `KEEP_SOURCE_DOCKER_STOPPED=true` is set for final cutover.
 - Confirm the destination can be overwritten with the migrated Coolify data.
 - Confirm whether all domains above should be tested/cut over, or whether any
   stale/offline entries should be excluded.
