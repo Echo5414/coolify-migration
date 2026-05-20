@@ -25,6 +25,10 @@ cp .env.example .env
 $EDITOR .env
 ```
 
+For local development, `.env.develop` is also supported. If `.env` does not
+exist, scripts will load `.env.develop`; you can also force a file with
+`ENV_FILE=.env.develop`.
+
 Use a temporary SSH key for both servers. Do not put passwords, API tokens, or
 Coolify secrets in this repository.
 

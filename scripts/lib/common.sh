@@ -26,6 +26,12 @@ expand_path() {
   local value="$1"
   if [[ "$value" == "~/"* ]]; then
     printf '%s/%s' "$HOME" "${value#~/}"
+  elif [[ "$value" =~ ^/([A-Za-z])/(.*)$ && -d /mnt/${BASH_REMATCH[1],,} ]]; then
+    printf '/mnt/%s/%s' "${BASH_REMATCH[1],,}" "${BASH_REMATCH[2]}"
+  elif [[ "$value" =~ ^([A-Za-z]):\\(.*)$ && -d /mnt/${BASH_REMATCH[1],,} ]]; then
+    local drive="${BASH_REMATCH[1],,}"
+    local rest="${BASH_REMATCH[2]//\\//}"
+    printf '/mnt/%s/%s' "$drive" "$rest"
   else
     printf '%s' "$value"
   fi
@@ -43,7 +49,16 @@ bool_true() {
 }
 
 load_env() {
-  ENV_FILE="${ENV_FILE:-$REPO_ROOT/.env}"
+  if [[ -z "${ENV_FILE:-}" ]]; then
+    if [[ -f "$REPO_ROOT/.env" ]]; then
+      ENV_FILE="$REPO_ROOT/.env"
+    elif [[ -f "$REPO_ROOT/.env.develop" ]]; then
+      ENV_FILE="$REPO_ROOT/.env.develop"
+    else
+      ENV_FILE="$REPO_ROOT/.env"
+    fi
+  fi
+
   if [[ -f "$ENV_FILE" ]]; then
     set -a
     # shellcheck disable=SC1090
