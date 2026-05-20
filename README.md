@@ -53,6 +53,9 @@ bash scripts/preflight.sh
 
 Inventory output is written under `artifacts/inventory/`. Commit neither
 inventory artifacts nor backups; they may reveal infrastructure details.
+The inventory scripts intentionally avoid full `docker inspect`, container
+environment variables, raw process command lines, and logs because those can
+contain secrets.
 
 ## Phase 2: backup source
 
@@ -113,6 +116,7 @@ Test every domain against the Hetzner IP before changing IONOS DNS. See
 - The restore script refuses to pull latest Coolify unless explicitly allowed.
 - The restore script refuses to overwrite an existing destination Coolify data
   directory unless explicitly allowed.
+- Verification does not print logs unless `SHOW_VERIFY_LOGS=true`.
 
 ## References
 

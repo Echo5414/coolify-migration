@@ -99,16 +99,6 @@ docker exec coolify php artisan --version 2>/dev/null || true
 docker inspect coolify --format 'image={{.Config.Image}} status={{.State.Status}}' 2>/dev/null || true
 REMOTE
 
-capture SOURCE source/docker-inspect.json <<'REMOTE'
-set +e
-ids="$(docker ps -aq 2>/dev/null)"
-if [ -n "$ids" ]; then
-  docker inspect $ids
-else
-  echo "[]"
-fi
-REMOTE
-
 capture DEST destination/summary.txt <<'REMOTE'
 set +e
 
@@ -151,9 +141,9 @@ fi
 
 section "counter-strike hints"
 if command -v docker >/dev/null 2>&1; then
-  docker ps -a --format '{{.Names}} {{.Image}} {{.Command}}' 2>/dev/null | grep -Ei 'counter|strike|cs2|csgo|srcds|steam' || true
+  docker ps -a --format '{{.Names}} {{.Image}} {{.Status}}' 2>/dev/null | grep -Ei 'counter|strike|cs2|csgo|srcds|steam' || true
 fi
-ps aux 2>/dev/null | grep -Ei 'counter|strike|cs2|csgo|srcds|steam' | grep -v grep || true
+ps -eo user,pid,comm 2>/dev/null | grep -Ei 'counter|strike|cs2|csgo|srcds|steam' || true
 
 section "coolify destination path"
 if [ -e /data/coolify ]; then

@@ -81,7 +81,7 @@ check df -Pk /
 if command -v docker >/dev/null 2>&1; then
   docker info --format '[INFO] docker root: {{.DockerRootDir}} architecture: {{.Architecture}} server: {{.ServerVersion}}' 2>/dev/null || true
   printf '[INFO] docker-managed counter-strike hints:\n'
-  docker ps -a --format '{{.Names}} {{.Image}} {{.Command}}' 2>/dev/null | grep -Ei 'counter|strike|cs2|csgo|srcds|steam' || true
+  docker ps -a --format '{{.Names}} {{.Image}} {{.Status}}' 2>/dev/null | grep -Ei 'counter|strike|cs2|csgo|srcds|steam' || true
 else
   printf '[WARN] docker not installed on destination yet\n' >&2
 fi
