@@ -1,0 +1,6 @@
+# Optional reference list for bind mounts discovered during inventory.
+# The scripts use EXTRA_BIND_PATHS in .env. Keep this file as a review aid.
+#
+# Example:
+# /srv/uploads
+# /opt/my-app/storage
