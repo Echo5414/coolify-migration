@@ -83,7 +83,7 @@ log "Extracting backup archive with absolute paths"
 tar -Pxzpf "$BACKUP_FILE" -C /
 
 if [ -d "$COOLIFY_DATA_DIR" ]; then
-  chown -R root:root "$COOLIFY_DATA_DIR"
+  log "Preserving restored ownership under $COOLIFY_DATA_DIR"
 fi
 
 log "Installing or reconciling Coolify"

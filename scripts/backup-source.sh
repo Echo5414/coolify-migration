@@ -151,8 +151,11 @@ fi
 docker_stopped=0
 start_docker() {
   if [ "$docker_stopped" -eq 1 ]; then
-    log "Starting Docker after backup"
-    systemctl start docker 2>/dev/null || service docker start 2>/dev/null || true
+    log "Starting Docker service/socket after backup"
+    systemctl start docker.socket docker.service 2>/dev/null || \
+      systemctl start docker 2>/dev/null || \
+      service docker start 2>/dev/null || \
+      true
   fi
 }
 if bool_true "${KEEP_SOURCE_DOCKER_STOPPED:-false}"; then
@@ -162,8 +165,11 @@ else
 fi
 
 if bool_true "$STOP_DOCKER_FOR_BACKUP"; then
-  log "Stopping Docker for a consistent volume snapshot"
-  systemctl stop docker 2>/dev/null || service docker stop 2>/dev/null || die "failed to stop Docker"
+  log "Stopping Docker service/socket for a consistent volume snapshot"
+  systemctl stop docker.service docker.socket 2>/dev/null || \
+    systemctl stop docker 2>/dev/null || \
+    service docker stop 2>/dev/null || \
+    die "failed to stop Docker"
   docker_stopped=1
 else
   log "Docker stop disabled. Live DB volumes may be inconsistent."

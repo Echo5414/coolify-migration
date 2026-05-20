@@ -19,6 +19,10 @@
 - Run `scripts/inventory.sh`.
 - Run `scripts/preflight.sh`.
 - Review bind mounts and decide whether any path belongs in `EXTRA_BIND_PATHS`.
+- Decide the backup path before the maintenance window:
+  - If active apps use local-built images or unrebuildable container metadata,
+    use the Docker-root fallback from the start.
+  - If active apps are registry images plus volumes, use the staged path.
 - Do not change DNS yet.
 
 ## Maintenance window
@@ -30,6 +34,13 @@
 - Set `ALLOW_DESTINATION_DOCKER_STOP=true`.
 - Run `scripts/restore-destination.sh --execute`.
 - Run `scripts/verify-destination.sh`.
+- If app containers cannot be recreated because local-built images or container
+  metadata are missing, use the guarded full Docker-root fallback:
+  - `scripts/backup-docker-root.sh --execute`
+  - transfer the generated `docker-root-*.tar.gz`
+  - `RESTORE_DOCKER_ROOT=true MOVE_EXISTING_DEST_DOCKER_ROOT=true scripts/restore-docker-root.sh --execute`
+- Run `scripts/fix-coolify-localhost.sh --execute` so Coolify can SSH to the
+  new host's `localhost` server and so the instance public IPv4 is updated.
 
 ## Hosts-file test
 

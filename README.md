@@ -18,6 +18,20 @@ The scripts are deliberately split into phases. The inventory/preflight scripts
 are read-only. The backup, transfer, and restore scripts require explicit
 `--execute` flags and `.env` guardrails.
 
+## Backup Path Decision
+
+Choose the backup path before the maintenance window:
+
+1. Run inventory and check whether active Coolify apps use local-built images,
+   for example compose services with `build:` or image names that are not pulled
+   from a registry.
+2. If local-built images or unrebuildable container metadata are present, use
+   the Docker-root fallback from the start: `backup-docker-root.sh`,
+   `transfer-to-destination.sh`, then `restore-docker-root.sh`.
+3. If every active app can be recreated from registry images plus volumes, the
+   staged path is fine: `backup-source.sh`, `transfer-to-destination.sh`, then
+   `restore-destination.sh`.
+
 ## Setup
 
 ```bash
@@ -55,6 +69,7 @@ DEST_USER=root
 DEST_SSH_KEY=~/.ssh/coolify_migration
 
 COOLIFY_VERSION=4.x.x
+SOURCE_DOCKER_ROOT=/var/lib/docker
 NEW_SERVER_IPV4=1.2.3.4
 DOMAINS=app.example.com coolify.example.com
 ```
@@ -117,6 +132,28 @@ bash scripts/restore-destination.sh --execute
 bash scripts/verify-destination.sh
 ```
 
+If locally built images or container metadata cannot be recreated from the
+standard archive, use the stopped Docker-root fallback instead of improvising:
+
+```bash
+# Source: create a stopped /var/lib/docker archive.
+bash scripts/backup-docker-root.sh --execute
+
+# Transfer the generated docker-root archive.
+BACKUP_FILE=/root/coolify-migration/backups/<run-id>/docker-root-<run-id>.tar.gz \
+  bash scripts/transfer-to-destination.sh --execute
+
+# Destination: replace /var/lib/docker with the transferred archive.
+RESTORE_DOCKER_ROOT=true MOVE_EXISTING_DEST_DOCKER_ROOT=true \
+  bash scripts/restore-docker-root.sh --execute
+```
+
+After restore, repair Coolify's local server SSH trust and public instance IP:
+
+```bash
+bash scripts/fix-coolify-localhost.sh --execute
+```
+
 ## Phase 5: hosts-file test and DNS cutover
 
 Print local hosts-file lines:
@@ -127,6 +164,9 @@ bash scripts/print-hosts-overrides.sh
 
 Test every domain against the Hetzner IP before changing IONOS DNS. See
 [docs/CUTOVER.md](docs/CUTOVER.md).
+
+Operational pitfalls and fixes from the real Contabo to Hetzner migration are
+captured in [LESSONS.md](LESSONS.md).
 
 ## Safety model
 

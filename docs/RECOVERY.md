@@ -25,3 +25,22 @@ This toolkit archives the full `/data/coolify` directory by default, including
 
 If you ever restore only a Coolify database backup into a fresh Coolify install,
 follow the official Coolify flow and set the old key as `APP_PREVIOUS_KEYS`.
+
+## Full Docker-root fallback
+
+Use the Docker-root fallback only when the normal `/data/coolify` plus volume
+restore cannot recreate locally built images, container metadata, or networks.
+It requires stopped Docker on both sides and replaces `/var/lib/docker` on the
+destination while preserving the previous destination root as
+`/var/lib/docker.pre-docker-root-*`.
+
+The expected sequence is:
+
+```bash
+bash scripts/backup-docker-root.sh --execute
+BACKUP_FILE=/root/coolify-migration/backups/<run-id>/docker-root-<run-id>.tar.gz \
+  bash scripts/transfer-to-destination.sh --execute
+RESTORE_DOCKER_ROOT=true MOVE_EXISTING_DEST_DOCKER_ROOT=true \
+  bash scripts/restore-docker-root.sh --execute
+bash scripts/fix-coolify-localhost.sh --execute
+```
